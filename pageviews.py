@@ -3,6 +3,7 @@ import traceback
 from datetime import date, datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
+import urllib
 
 endpoints = {
     'article': 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article',
@@ -102,7 +103,10 @@ class PageviewsClient:
             for a in articles
         ]
 
-        output = defaultdict(dict)
+        outputDays = timestamps_between(startDate, endDate, timedelta(days=1))
+        output = defaultdict(dict, {
+            day : {urllib.parse.unquote(a) : None for a in articles} for day in outputDays
+        })
 
         try:
             results = self.get_concurrent(urls)
